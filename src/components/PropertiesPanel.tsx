@@ -14,7 +14,7 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
     const [originX, setOriginX] = useState('left');
     const [originY, setOriginY] = useState('top');
 
-    // NEW: Trigger re-renders for lock state changes
+    // Trigger re-renders for lock state changes
     const [, setRefresh] = useState(false);
 
     useEffect(() => {
@@ -51,6 +51,36 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
         }
 
         canvasRef.current?.renderAll();
+    };
+
+    // Layering controls
+    const sendBackwards = () => {
+        if (!selectedObject || !canvasRef.current) return;
+        canvasRef.current.setActiveObject(selectedObject); 
+        canvasRef.current.sendBackwards(selectedObject);
+        canvasRef.current.renderAll();
+    };
+
+    const sendToBack = () => {
+        console.log(selectedObject , canvasRef.current, 'selectedObject || !canvasRef.current')
+        if (!selectedObject || !canvasRef.current) return;
+        canvasRef.current.sendToBack(selectedObject);
+        canvasRef.current.setActiveObject(selectedObject); 
+        canvasRef.current.renderAll();
+    };
+
+    const bringForwards = () => {
+        if (!selectedObject || !canvasRef.current) return;
+        canvasRef.current.bringForward(selectedObject);
+        canvasRef.current.setActiveObject(selectedObject); 
+        canvasRef.current.renderAll();
+    };
+
+    const bringToFront = () => {
+        if (!selectedObject || !canvasRef.current) return;
+        canvasRef.current.bringToFront(selectedObject);
+        canvasRef.current.setActiveObject(selectedObject); 
+        canvasRef.current.renderAll();
     };
 
     const originOptions = ['left', 'center', 'right', '0.3', '0.5', '0.7', '1'];
@@ -187,6 +217,14 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
                         {opt}
                     </label>
                 ))}
+            </div>
+
+            {/* Layering Controls */}
+            <div className="btn-wrapper" style={{ marginTop: '10px' }}>
+                <button onClick={sendBackwards}>Send backwards</button>
+                <button onClick={sendToBack}>Send to back</button>
+                <button onClick={bringForwards}>Bring forwards</button>
+                <button onClick={bringToFront}>Bring to front</button>
             </div>
         </div>
     );

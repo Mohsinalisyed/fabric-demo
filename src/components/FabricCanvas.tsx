@@ -19,6 +19,7 @@ export const FabricCanvas = () => {
                 width: 800,
                 height: 600,
                 selection: true,
+                preserveObjectStacking: true
             });
 
             fabricCanvas.current = canvas;
