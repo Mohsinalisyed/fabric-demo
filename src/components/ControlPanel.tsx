@@ -1,4 +1,4 @@
-import { clearCanvas, exportCanvasJSON } from "../utils";
+import { clearCanvas, exportCanvasImage, exportCanvasJSON, exportCanvasSVG } from "../utils";
 
 type Props = {
     run: (action: (canvas: fabric.Canvas) => void) => void;
@@ -9,8 +9,12 @@ export const ControlPanel = ({ run }: Props) => {
     );
     return (
         <div className="btn-wrapper">
-            {renderButton('Clear', clearCanvas)}
-            {renderButton('Export JSON', exportCanvasJSON)}
+            <div className="btn-wrapper">
+                {renderButton("Clear", clearCanvas)}
+                {renderButton("Export JSON", exportCanvasJSON)}
+                {renderButton("Download PNG", exportCanvasImage)}
+                {renderButton("Download SVG", exportCanvasSVG)}
+            </div>
         </div>
     )
 }
