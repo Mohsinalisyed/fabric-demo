@@ -27,8 +27,8 @@ export class TextboxWithPadding extends fabric.Textbox {
     const scaleX = this.scaleX ?? 1;
     const scaleY = this.scaleY ?? 1;
 
-    const scaledPaddingX = this.paddingX * scaleX;
-    const scaledPaddingY = this.paddingY * scaleY;
+    const scaledPaddingX = this.paddingX / scaleX;
+    const scaledPaddingY = this.paddingY / scaleY;
 
     const x = -dim.x / 2 - scaledPaddingX;
     const y = -dim.y / 2 - scaledPaddingY;
