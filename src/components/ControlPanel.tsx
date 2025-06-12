@@ -2,8 +2,12 @@ import { clearCanvas, exportCanvasImage, exportCanvasJSON, exportCanvasSVG } fro
 
 type Props = {
     run: (action: (canvas: fabric.Canvas) => void) => void;
-}
-export const ControlPanel = ({ run }: Props) => {
+    collisionDetectionActive: boolean;
+    setCollisionDetectionActive: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const ControlPanel = ({ run, collisionDetectionActive, setCollisionDetectionActive }: Props) => {
+
     const renderButton = (label: string, handler: (canvas: fabric.Canvas) => void) => (
         <button onClick={() => run(handler)}>{label}</button>
     );
@@ -14,6 +18,9 @@ export const ControlPanel = ({ run }: Props) => {
                 {renderButton("Export JSON", exportCanvasJSON)}
                 {renderButton("Download PNG", exportCanvasImage)}
                 {renderButton("Download SVG", exportCanvasSVG)}
+                <button onClick={() => setCollisionDetectionActive(prev => !prev)}>
+                {collisionDetectionActive ? 'Deactivate' : 'Activate'} Collision Detection
+            </button>
             </div>
         </div>
     )
