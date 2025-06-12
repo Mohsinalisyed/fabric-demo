@@ -16,6 +16,7 @@ import {
     addArc,
     addCustomArc,
 } from '../utils';
+import { TextboxWithPadding } from './TextboxWithPadding';
 
 type Props = {
     run: (action: (canvas: fabric.Canvas) => void) => void;
@@ -25,7 +26,24 @@ const ShapePanel = ({ run }: Props) => {
     const renderButton = (label: string, handler: (canvas: fabric.Canvas) => void) => (
         <button onClick={() => run(handler)}>{label}</button>
     );
-
+  const addTextboxWithPadding = () => {
+    run(canvas => {
+      const textbox = new TextboxWithPadding('Hello World!', {
+        left: 100,
+        top: 100,
+        width: 200,
+        fill: 'black',
+        backgroundColor: 'lightblue',
+        paddingY: 16,
+        paddingX: 8,
+        fontSize: 20,
+        fontWeight:'bold',
+        textAlign:'center',
+        borderRadius:16,
+      });
+      canvas.add(textbox);
+    });
+  };
     return (
         <div>
             <h3>Add Shapes</h3>
@@ -57,6 +75,10 @@ const ShapePanel = ({ run }: Props) => {
             <div className="btn-wrapper">
                 {renderButton('Add Arc', addArc)}
                 {renderButton('Add Custom Arc', addCustomArc)}
+            </div>
+               <h3>Add Custom</h3>
+            <div className="btn-wrapper">
+                {renderButton('Add Custom Textbox', addTextboxWithPadding)}
             </div>
         </div>
     );
