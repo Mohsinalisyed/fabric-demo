@@ -6,6 +6,7 @@ import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import ShapePanel from './ShapePanel';
 import PropertiesPanel from './PropertiesPanel';
 import { ControlPanel } from './ControlPanel';
+import DrawingCanvas from './DrawingCanvas';
 
 export const FabricCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -59,6 +60,7 @@ export const FabricCanvas = () => {
                         <Tab className="tab-title">Shapes</Tab>
                         <Tab className="tab-title">Properties</Tab>
                         <Tab className="tab-title">Canvas</Tab>
+                        <Tab className="tab-title">Drawing</Tab>
 
                     </TabList>
                     <TabPanel>
@@ -70,6 +72,10 @@ export const FabricCanvas = () => {
                     <TabPanel>
                         <ControlPanel run={run} />
                     </TabPanel>
+                  <TabPanel>
+  <DrawingCanvas  fabricCanvasRef={fabricCanvas} />
+</TabPanel>
+
                 </Tabs>
             </div>
         </>
