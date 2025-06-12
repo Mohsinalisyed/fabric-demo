@@ -175,15 +175,15 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ fabricCanvasRef }) => {
         </label>
         <label>
           Line Width:
-          <input ref={drawingLineWidthRef} type="number" defaultValue="5" onChange={setupInitialBrush} />
+          <input ref={drawingLineWidthRef} type="number" defaultValue="5" onChange={setupInitialBrush} min={1}/>
         </label>
         <label>
           Shadow Width:
-          <input ref={drawingShadowWidthRef} type="number" defaultValue="0" onChange={setupInitialBrush} />
+          <input ref={drawingShadowWidthRef} type="number" defaultValue="0" onChange={setupInitialBrush} min={0}/>
         </label>
         <label>
           Shadow Offset:
-          <input ref={drawingShadowOffsetRef} type="number" defaultValue="0" onChange={setupInitialBrush} />
+          <input ref={drawingShadowOffsetRef} type="number" defaultValue="0" onChange={setupInitialBrush} min={0}/>
         </label>
       </div>
     </div>

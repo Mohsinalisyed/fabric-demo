@@ -79,7 +79,6 @@ export const FabricCanvas = () => {
                     </TabPanel>
                     <TabPanel>
                         <SvgToFabricLoader fabricCanvasRef={fabricCanvas} />
-
                     </TabPanel>
 
                 </Tabs>

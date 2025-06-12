@@ -37,7 +37,8 @@ h1 {
 }
 h3 {
   text-align: start;
-  color:#535bf2
+  color:#007bff;
+  font-weight: 500;
 }
 button {
   border-radius: 8px;
