@@ -16,23 +16,28 @@ export class TextboxWithPadding extends fabric.Textbox {
     super(text, options);
 
     this.borderRadius = options.borderRadius ?? 0;
-    this.paddingX = options.paddingX ?? this.padding ?? 0;
-    this.paddingY = options.paddingY ?? this.padding ?? 0;
+    this.paddingX = options.paddingX ?? 0;
+    this.paddingY = options.paddingY ?? 0;
   }
 
   _renderBackground(ctx: CanvasRenderingContext2D) {
     if (!ctx || !this.backgroundColor) return;
 
     const dim = this._getNonTransformedDimensions();
-    const x = -dim.x / 2 - this.paddingX;
-    const y = -dim.y / 2 - this.paddingY;
-    const width = dim.x + this.paddingX * 2;
-    const height = dim.y + this.paddingY * 2;
-    const r = Math.min(this.borderRadius, width / 2, height / 2);
+    const scaleX = this.scaleX ?? 1;
+    const scaleY = this.scaleY ?? 1;
+
+    const scaledPaddingX = this.paddingX * scaleX;
+    const scaledPaddingY = this.paddingY * scaleY;
+
+    const x = -dim.x / 2 - scaledPaddingX;
+    const y = -dim.y / 2 - scaledPaddingY;
+    const width = dim.x + scaledPaddingX * 2;
+    const height = dim.y + scaledPaddingY * 2;
+    const r = Math.min(this.borderRadius * scaleX, width / 2, height / 2);
 
     ctx.fillStyle = this.backgroundColor;
 
-    // Draw rounded rectangle
     ctx.beginPath();
     ctx.moveTo(x + r, y);
     ctx.arcTo(x + width, y, x + width, y + height, r);
@@ -47,12 +52,18 @@ export class TextboxWithPadding extends fabric.Textbox {
     }
   }
 
-  // Optional: override _getPadding to avoid unwanted default padding behavior
   _getPadding() {
     return Math.max(this.paddingX, this.paddingY);
   }
+
+  _getNonTransformedDimensions() {
+    const dim = super._getNonTransformedDimensions();
+    return {
+      x: dim.x + this.paddingX * 2,
+      y: dim.y + this.paddingY * 2,
+    };
+  }
 }
 
-// Register the class globally in Fabric if needed
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (fabric as any).TextboxWithPadding = TextboxWithPadding;

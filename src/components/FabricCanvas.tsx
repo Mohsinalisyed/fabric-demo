@@ -27,6 +27,38 @@ export const FabricCanvas = () => {
         });
 
         fabricCanvas.current = canvas;
+
+        // Add custom delete control
+        fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+            x: 0.5,
+            y: -0.5,
+            offsetY: -16,
+            offsetX: 16,
+            cursorStyle: 'pointer',
+            mouseUpHandler: function (_eventData, transform) {
+                const target = transform.target;
+                const canvas = target.canvas;
+                canvas?.remove(target);
+                canvas?.requestRenderAll();
+                return true;
+            },
+            render: function (ctx, left, top) {
+                const size = 24; // moved here instead of using non-existent `cornerSize`
+                ctx.save();
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(left, top, size / 2, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.font = `${size - 6}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('×', left, top + 1);
+                ctx.restore();
+            }
+        });
+
+
         let dragStarted = false;
 
         const handleSelection = (e: fabric.IEvent) => {
