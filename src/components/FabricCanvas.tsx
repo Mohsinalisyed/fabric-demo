@@ -7,6 +7,7 @@ import ShapePanel from './ShapePanel';
 import PropertiesPanel from './PropertiesPanel';
 import { ControlPanel } from './ControlPanel';
 import DrawingCanvas from './DrawingCanvas';
+import SvgToFabricLoader from './SvgToFabricCanvas';
 
 export const FabricCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,14 +54,15 @@ export const FabricCanvas = () => {
             <h1>Fabric Demo</h1>
             <div className="canvas-container">
                 <div>
-                    <canvas ref={canvasRef} id="canvas" className="bg-red-500" />
+                    <canvas ref={canvasRef} id="canvas" className="canvas" />
                 </div>
                 <Tabs>
                     <TabList>
                         <Tab className="tab-title">Shapes</Tab>
                         <Tab className="tab-title">Properties</Tab>
-                        <Tab className="tab-title">Canvas</Tab>
                         <Tab className="tab-title">Drawing</Tab>
+                        <Tab className="tab-title">Canvas</Tab>
+                        <Tab className="tab-title">Load Svg</Tab>
 
                     </TabList>
                     <TabPanel>
@@ -70,11 +72,15 @@ export const FabricCanvas = () => {
                         <PropertiesPanel selectedObject={selectedObject} canvasRef={fabricCanvas} />
                     </TabPanel>
                     <TabPanel>
+                        <DrawingCanvas fabricCanvasRef={fabricCanvas} />
+                    </TabPanel>
+                    <TabPanel>
                         <ControlPanel run={run} />
                     </TabPanel>
-                  <TabPanel>
-  <DrawingCanvas  fabricCanvasRef={fabricCanvas} />
-</TabPanel>
+                    <TabPanel>
+                        <SvgToFabricLoader fabricCanvasRef={fabricCanvas} />
+
+                    </TabPanel>
 
                 </Tabs>
             </div>

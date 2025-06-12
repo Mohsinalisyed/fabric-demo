@@ -187,7 +187,7 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
             </div>
 
             {/* Origin Controls */}
-            <div style={{ marginTop: '10px' }}>
+            <div>
                 <label>Origin X:</label>
                 {originOptions.map((opt) => (
                     <label key={`originX-${opt}`} style={{ marginRight: 6 }}>
@@ -203,7 +203,7 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
                 ))}
             </div>
 
-            <div style={{ marginTop: '10px' }}>
+            <div>
                 <label>Origin Y:</label>
                 {originOptions.map((opt) => (
                     <label key={`originY-${opt}`} style={{ marginRight: 6 }}>

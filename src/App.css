@@ -42,6 +42,18 @@
   gap: 8px;
 }
 .tab-title {
-  padding: 2px 16px;
   cursor: pointer;
+ padding: 4px 16px;
+}
+.tab-title:hover {
+  color: #007bff;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.react-tabs__tab--selected {
+  background-color: aliceblue;
+  border-radius: 4px;
+  color: #000;
 }

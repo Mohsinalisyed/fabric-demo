@@ -5,7 +5,7 @@ interface DrawingCanvasProps {
   fabricCanvasRef: React.MutableRefObject<fabric.Canvas | null>;
 }
 
-const DrawingCanvas: React.FC<DrawingCanvasProps> = ({  fabricCanvasRef }) => {
+const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ fabricCanvasRef }) => {
   const drawingColorRef = useRef<HTMLInputElement>(null);
   const drawingShadowColorRef = useRef<HTMLInputElement>(null);
   const drawingLineWidthRef = useRef<HTMLInputElement>(null);
@@ -16,11 +16,23 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({  fabricCanvasRef }) => {
 
   useEffect(() => {
     if (fabricCanvasRef.current) {
+      const canvas = fabricCanvasRef.current;
       fabric.Object.prototype.transparentCorners = false;
-      fabricCanvasRef.current.freeDrawingBrush = new fabric.PencilBrush(fabricCanvasRef.current);
+
+      // Set default brush
+      canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+
+      // Set button text according to current drawing mode
+      if (drawingModeButtonRef.current) {
+        drawingModeButtonRef.current.innerText = canvas.isDrawingMode
+          ? 'Cancel drawing mode'
+          : 'Enter drawing mode';
+      }
+
       setupInitialBrush();
     }
-  }, [fabricCanvasRef.current]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fabricCanvasRef]);
 
   const setupInitialBrush = () => {
     const canvas = fabricCanvasRef.current;
@@ -42,7 +54,6 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({  fabricCanvasRef }) => {
       color: shadowColor,
     });
   };
-
 
   const handleToggleDrawingMode = () => {
     const canvas = fabricCanvasRef.current;
@@ -102,7 +113,6 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({  fabricCanvasRef }) => {
             fill: this.color!,
           });
           const canvasWidth = rect.getBoundingRect().width;
-
           patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
           rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
           rect.render(ctx);
@@ -143,9 +153,9 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({  fabricCanvasRef }) => {
     <div>
       <div style={{ marginBottom: '1rem' }} className='drawing-wrapper'>
         <button ref={drawingModeButtonRef} onClick={handleToggleDrawingMode}>
-          Cancel drawing mode
+          Enter drawing mode
         </button>
- 
+
         <select ref={brushTypeRef} onChange={handleBrushChange}>
           <option value="Pencil">Pencil</option>
           <option value="hline">Horizontal Line</option>
