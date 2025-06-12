@@ -8,6 +8,7 @@ import { ControlPanel } from './ControlPanel';
 import DrawingCanvas from './DrawingCanvas';
 import SvgToFabricLoader from './SvgToFabricCanvas';
 import { isColliding } from '../utils';
+import JsonToFabricCanvas from './JsonToFabricCanvas';
 
 export const FabricCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -143,6 +144,7 @@ export const FabricCanvas = () => {
                         <Tab className="tab-title">Drawing</Tab>
                         <Tab className="tab-title">Canvas</Tab>
                         <Tab className="tab-title">Load Svg</Tab>
+                        <Tab className="tab-title">Load Json</Tab>
                     </TabList>
 
                     <TabPanel>
@@ -163,6 +165,9 @@ export const FabricCanvas = () => {
                     </TabPanel>
                     <TabPanel>
                         <SvgToFabricLoader fabricCanvasRef={fabricCanvas} />
+                    </TabPanel>
+                    <TabPanel>
+                        {fabricCanvas.current && <JsonToFabricCanvas canvas={fabricCanvas.current} />}
                     </TabPanel>
                 </Tabs>
             </div>
