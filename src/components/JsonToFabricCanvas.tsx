@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fabric } from 'fabric';
+import { TextboxWithPadding } from './TextboxWithPadding';
 
 interface JsonToFabricCanvasProps {
   canvas: fabric.Canvas | null;
@@ -15,10 +16,24 @@ const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
     try {
       const parsed = JSON.parse(jsonInput);
 
-      canvas.loadFromJSON(parsed, () => {
-        canvas.renderAll(); // render everything after loading
-        setError('');
-      });
+      canvas.loadFromJSON(
+        parsed,
+        () => {
+          canvas.renderAll();
+          setError('');
+        },
+        // Reviver function for custom deserialization
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (obj: any, object: fabric.Object) => {
+          if (obj.type === 'textbox-with-padding') {
+            TextboxWithPadding.fromObject(obj, (customTextbox) => {
+              canvas.add(customTextbox);
+            });
+            return null; // prevent Fabric from adding default object
+          }
+          return object; // default object
+        }
+      );
     } catch (err) {
       console.error(err);
       setError('Invalid JSON input');

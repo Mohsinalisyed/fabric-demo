@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fabric } from 'fabric';
 
 export class TextboxWithPadding extends fabric.Textbox {
@@ -13,22 +14,24 @@ export class TextboxWithPadding extends fabric.Textbox {
       paddingX?: number;
       paddingY?: number;
       customBackgroundColor?: string;
-    }
+    } = {}
   ) {
     super(text, {
       ...options,
-      backgroundColor: '', // disable default background
+      backgroundColor: '', // prevent Fabric default background rendering
     });
 
     this.borderRadius = options.borderRadius ?? 0;
     this.paddingX = options.paddingX ?? 0;
     this.paddingY = options.paddingY ?? 0;
-    this.customBackgroundColor = options.customBackgroundColor ?? options.backgroundColor ?? '';
+    this.customBackgroundColor =
+      options.customBackgroundColor ?? options.backgroundColor ?? '';
+    this.set('type', 'textbox-with-padding'); // For loadFromJSON
   }
 
   _render(ctx: CanvasRenderingContext2D) {
-    this._renderCustomBackground(ctx); // Draw custom background
-    super._render(ctx); // Let Fabric draw text
+    this._renderCustomBackground(ctx);
+    super._render(ctx);
   }
 
   private _renderCustomBackground(ctx: CanvasRenderingContext2D) {
@@ -44,8 +47,6 @@ export class TextboxWithPadding extends fabric.Textbox {
     ctx.save();
     ctx.fillStyle = this.customBackgroundColor;
     ctx.beginPath();
-
-    // Rounded rectangle path
     ctx.moveTo(x + r, y);
     ctx.arcTo(x + width, y, x + width, y + height, r);
     ctx.arcTo(x + width, y + height, x, y + height, r);
@@ -73,10 +74,6 @@ export class TextboxWithPadding extends fabric.Textbox {
     };
   }
 
-  _getPadding() {
-    return Math.max(this.paddingX, this.paddingY);
-  }
-
   toObject(propertiesToInclude?: string[]) {
     return {
       ...super.toObject(propertiesToInclude),
@@ -84,10 +81,26 @@ export class TextboxWithPadding extends fabric.Textbox {
       paddingX: this.paddingX,
       paddingY: this.paddingY,
       customBackgroundColor: this.customBackgroundColor,
+      type: 'textbox-with-padding',
     };
+  }
+
+  static fromObject(
+    object: any,
+    callback: (obj: TextboxWithPadding) => void
+  ): void {
+    const instance = new TextboxWithPadding(object.text, {
+      ...object,
+      borderRadius: object.borderRadius,
+      paddingX: object.paddingX,
+      paddingY: object.paddingY,
+      customBackgroundColor: object.customBackgroundColor,
+    });
+
+    callback(instance);
   }
 }
 
-// Register globally if needed
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Register class for FabricJS deserialization
 (fabric as any).TextboxWithPadding = TextboxWithPadding;
+(fabric as any)['textbox-with-padding'] = TextboxWithPadding;
