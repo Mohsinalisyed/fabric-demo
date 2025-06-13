@@ -167,7 +167,7 @@ export const FabricCanvas = () => {
                         <SvgToFabricLoader fabricCanvasRef={fabricCanvas} />
                     </TabPanel>
                     <TabPanel>
-                        {fabricCanvas.current && <JsonToFabricCanvas canvas={fabricCanvas.current} />}
+                         <JsonToFabricCanvas canvas={fabricCanvas.current} />
                     </TabPanel>
                 </Tabs>
             </div>

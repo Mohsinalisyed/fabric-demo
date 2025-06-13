@@ -28,20 +28,22 @@ const ShapePanel = ({ run }: Props) => {
     );
   const addTextboxWithPadding = () => {
     run(canvas => {
-      const textbox = new TextboxWithPadding('Hello World!', {
-        left: 100,
-        top: 100,
-        width: 200,
-        fill: 'black',
-        backgroundColor: 'lightblue',
-        paddingY: 16,
-        paddingX: 8,
-        fontSize: 20,
-        fontWeight:'bold',
-        textAlign:'center',
-        borderRadius:16,
-      });
-      canvas.add(textbox);
+const textbox = new TextboxWithPadding('Hello World!', {
+  left: 100,
+  top: 100,
+  fontSize: 32,
+  fill: '#000',
+  customBackgroundColor: 'lightblue',
+  paddingX: 20,
+  paddingY: 12,
+  borderRadius: 20,
+  textAlign:'center',
+  width:200
+});
+canvas.add(textbox);
+canvas.setActiveObject(textbox);
+canvas.renderAll();
+
     });
   };
     return (

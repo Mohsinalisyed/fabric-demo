@@ -1,4 +1,3 @@
-// JsonToFabricCanvas.tsx
 import { useState } from 'react';
 import { fabric } from 'fabric';
 
@@ -15,56 +14,19 @@ const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
 
     try {
       const parsed = JSON.parse(jsonInput);
-      canvas.clear();
-      canvas.setBackgroundColor('#f0f0f0', () => {});
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Object.entries(parsed).forEach(([, props]: [string, any]) => {
-        const polygon = new fabric.Polygon(
-          createPolygonPoints(props.sides, props.radius),
-          {
-            left: props.x,
-            top: props.y,
-            fill: props.fill || 'red',
-            stroke: props.stroke || 'black',
-            strokeWidth: props.strokeWidth || 2,
-            selectable: true,
-            hasControls: false,
-          }
-        );
-
-        polygon.on('mousedown', () => {
-          polygon.set('fill', getRandomColor());
-          canvas.renderAll();
-        });
-
-        canvas.add(polygon);
+      canvas.loadFromJSON(parsed, () => {
+        canvas.renderAll(); // render everything after loading
+        setError('');
       });
-
-      setError('');
     } catch (err) {
-        console.log(err)
+      console.error(err);
       setError('Invalid JSON input');
     }
   };
 
-  const createPolygonPoints = (sides: number, radius: number) => {
-    const points = [];
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-      points.push({
-        x: radius * Math.cos(angle),
-        y: radius * Math.sin(angle),
-      });
-    }
-    return points;
-  };
-
-  const getRandomColor = () =>
-    '#' + Math.floor(Math.random() * 16777215).toString(16);
-
   return (
-    <div className='svg-wrapper'>
+    <div className="svg-wrapper">
       <div>
         <textarea
           placeholder="Paste JSON here"
@@ -73,10 +35,11 @@ const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
           value={jsonInput}
           onChange={(e) => setJsonInput(e.target.value)}
           className="svg-textarea"
-
         />
         <br />
-        <button onClick={handleLoadJson}   className="svg-load-button">Load JSON</button>
+        <button onClick={handleLoadJson} className="svg-load-button">
+          Load JSON
+        </button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
     </div>
