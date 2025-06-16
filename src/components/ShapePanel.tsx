@@ -55,66 +55,27 @@ const ShapePanel = ({ run, canvasRef }: Props) => {
 
         if (!activeObject || !(activeObject instanceof fabric.ActiveSelection)) return;
 
-        const objects = activeObject.getObjects();
-        const originalStates = objects.map(obj => ({
-            obj,
-            left: obj.left,
-            top: obj.top,
-            angle: obj.angle,
-            scaleX: obj.scaleX,
-            scaleY: obj.scaleY,
-        }));
-
         // Convert to group
         const group = activeObject.toGroup();
         canvas.setActiveObject(group);
-
-        // Fix: Restore absolute positions
-        originalStates.forEach(({ obj, left, top, angle, scaleX, scaleY }) => {
-            obj.set({
-                left,
-                top,
-                angle,
-                scaleX,
-                scaleY,
-            });
-            obj.setCoords();
-        });
-
         canvas.requestRenderAll();
     };
 
 
 
-const handleUngroup = () => {
-  const canvas = canvasRef.current;
-  if (!canvas) return;
+    const handleUngroup = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-  const group = canvas.getActiveObject();
-  if (!(group instanceof fabric.Group)) return;
+        const group = canvas.getActiveObject();
+        if (!(group instanceof fabric.Group)) return;
+        group.toActiveSelection();
+        canvas.discardActiveObject()
+        canvas.requestRenderAll();
+    };
 
-  const items = group.getObjects();
 
-  // Remove group from canvas
-  canvas.remove(group);
 
-  items.forEach(obj => {
-    // Convert object's position from group space to canvas space
-    const bounds = obj.getBoundingRect(true, true);
-    obj.set({
-      left: bounds.left,
-      top: bounds.top,
-      angle: (obj.angle ?? 0) + (group.angle ?? 0),
-    });
-    obj.setCoords();
-    canvas.add(obj);
-  });
-
-  // Reselect all items after ungrouping
-  const selection = new fabric.ActiveSelection(items, { canvas });
-  canvas.setActiveObject(selection);
-  canvas.requestRenderAll();
-};
 
     return (
         <div>
@@ -154,8 +115,8 @@ const handleUngroup = () => {
             </div>
             {/* Group/Ungroup Controls */}
             <div className="btn-wrapper" style={{ marginTop: '10px' }}>
-                <button onClick={handleGroup}>Group</button>
-                <button onClick={handleUngroup}>Ungroup</button>
+                {renderButton('Group', handleGroup)}
+                {renderButton('Ungroup', handleUngroup)}
             </div>
         </div>
     );
