@@ -141,13 +141,13 @@ export const FabricCanvas = () => {
   if (isColliding(object, canvas)) {
     object.set({
       fill: 'gray',
-      cornerColor: 'red', // 🔴 set corner color on collision
+      cornerColor: 'red', 
     }).setCoords();
   } else {
     const originalFill = object.data?.originalFill || 'yellow';
     object.set({
       fill: originalFill,
-      cornerColor: 'blue', // 🔵 reset corner color when no collision
+      cornerColor: 'blue',
     }).setCoords();
   }
 

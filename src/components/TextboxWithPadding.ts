@@ -1,24 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fabric } from 'fabric';
 
+// Define the list of custom properties
+const CUSTOM_PROPERTIES = [
+  'borderRadius',
+  'paddingX',
+  'paddingY',
+  'customBackgroundColor',
+] as const;
+
+type CustomPropertyKey = (typeof CUSTOM_PROPERTIES)[number];
+
+// Extend Fabric's textbox options with custom properties
+type ExtendedTextboxOptions = fabric.ITextboxOptions & {
+  borderRadius?: number;
+  paddingX?: number;
+  paddingY?: number;
+  customBackgroundColor?: string;
+};
+
+// Object type used during deserialization
+type TextboxWithPaddingObject = fabric.IObjectOptions &
+  Partial<Record<CustomPropertyKey, any>> & {
+    text: string;
+  };
+
 export class TextboxWithPadding extends fabric.Textbox {
   borderRadius: number;
   paddingX: number;
   paddingY: number;
-  customBackgroundColor: string | undefined;
+  customBackgroundColor?: string;
 
-  constructor(
-    text: string,
-    options: fabric.ITextboxOptions & {
-      borderRadius?: number;
-      paddingX?: number;
-      paddingY?: number;
-      customBackgroundColor?: string;
-    } = {}
-  ) {
+  constructor(text: string, options: ExtendedTextboxOptions = {}) {
     super(text, {
       ...options,
-      backgroundColor: '', // disable default bg rendering
+      backgroundColor: '', // Disable default background rendering
     });
 
     this.borderRadius = options.borderRadius ?? 0;
@@ -74,31 +90,29 @@ export class TextboxWithPadding extends fabric.Textbox {
     };
   }
 
-  toObject(propertiesToInclude?: string[]) {
+  toObject(propertiesToInclude: string[] = []) {
+    const customProps = CUSTOM_PROPERTIES.reduce<Record<string, any>>((acc, key) => {
+      acc[key] = this[key as keyof this];
+      return acc;
+    }, {});
+
     return {
-      ...super.toObject(propertiesToInclude),
-      borderRadius: this.borderRadius,
-      paddingX: this.paddingX,
-      paddingY: this.paddingY,
-      customBackgroundColor: this.customBackgroundColor,
+      ...super.toObject([...propertiesToInclude, ...CUSTOM_PROPERTIES]),
+      ...customProps,
       type: 'textbox-with-padding',
     };
   }
 
- static fromObject(object: any, callback?: (obj: TextboxWithPadding) => void): any {
-  const instance = new TextboxWithPadding(object.text, {
-    ...object,
-    borderRadius: object.borderRadius,
-    paddingX: object.paddingX,
-    paddingY: object.paddingY,
-    customBackgroundColor: object.customBackgroundColor,
-  });
-  callback?.(instance);
-  return instance;
+  static fromObject(
+    object: TextboxWithPaddingObject,
+    callback?: (obj: TextboxWithPadding) => void
+  ): TextboxWithPadding {
+    const instance = new TextboxWithPadding(object.text, object);
+    callback?.(instance);
+    return instance;
+  }
 }
 
-}
-
-// Register for JSON loading
+// Register the custom class with Fabric for JSON deserialization
 (fabric as any).TextboxWithPadding = TextboxWithPadding;
 (fabric as any)['textbox-with-padding'] = TextboxWithPadding;
