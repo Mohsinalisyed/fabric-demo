@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { fabric } from 'fabric';
-import { TextboxWithPadding } from './TextboxWithPadding';
 
 interface JsonToFabricCanvasProps {
   canvas: fabric.Canvas | null;
@@ -22,14 +21,6 @@ const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
           canvas.renderAll();
           setError('');
         },
-        // Reviver returns the correct custom object
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (obj: any, object: fabric.Object): fabric.Object => {
-          if (obj.type === 'textbox-with-padding') {
-            return TextboxWithPadding.fromObject(obj);
-          }
-          return object;
-        }
       );
     } catch (err) {
       console.error(err);
