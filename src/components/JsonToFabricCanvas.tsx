@@ -22,16 +22,13 @@ const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
           canvas.renderAll();
           setError('');
         },
-        // Reviver function for custom deserialization
+        // Reviver returns the correct custom object
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (obj: any, object: fabric.Object) => {
+        (obj: any, object: fabric.Object): fabric.Object => {
           if (obj.type === 'textbox-with-padding') {
-            TextboxWithPadding.fromObject(obj, (customTextbox) => {
-              canvas.add(customTextbox);
-            });
-            return null; // prevent Fabric from adding default object
+            return TextboxWithPadding.fromObject(obj);
           }
-          return object; // default object
+          return object;
         }
       );
     } catch (err) {

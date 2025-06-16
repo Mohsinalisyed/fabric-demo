@@ -18,7 +18,7 @@ export class TextboxWithPadding extends fabric.Textbox {
   ) {
     super(text, {
       ...options,
-      backgroundColor: '', // prevent Fabric default background rendering
+      backgroundColor: '', // disable default bg rendering
     });
 
     this.borderRadius = options.borderRadius ?? 0;
@@ -26,7 +26,7 @@ export class TextboxWithPadding extends fabric.Textbox {
     this.paddingY = options.paddingY ?? 0;
     this.customBackgroundColor =
       options.customBackgroundColor ?? options.backgroundColor ?? '';
-    this.set('type', 'textbox-with-padding'); // For loadFromJSON
+    this.set('type', 'textbox-with-padding');
   }
 
   _render(ctx: CanvasRenderingContext2D) {
@@ -85,22 +85,20 @@ export class TextboxWithPadding extends fabric.Textbox {
     };
   }
 
-  static fromObject(
-    object: any,
-    callback: (obj: TextboxWithPadding) => void
-  ): void {
-    const instance = new TextboxWithPadding(object.text, {
-      ...object,
-      borderRadius: object.borderRadius,
-      paddingX: object.paddingX,
-      paddingY: object.paddingY,
-      customBackgroundColor: object.customBackgroundColor,
-    });
-
-    callback(instance);
-  }
+ static fromObject(object: any, callback?: (obj: TextboxWithPadding) => void): any {
+  const instance = new TextboxWithPadding(object.text, {
+    ...object,
+    borderRadius: object.borderRadius,
+    paddingX: object.paddingX,
+    paddingY: object.paddingY,
+    customBackgroundColor: object.customBackgroundColor,
+  });
+  callback?.(instance);
+  return instance;
 }
 
-// Register class for FabricJS deserialization
+}
+
+// Register for JSON loading
 (fabric as any).TextboxWithPadding = TextboxWithPadding;
 (fabric as any)['textbox-with-padding'] = TextboxWithPadding;
