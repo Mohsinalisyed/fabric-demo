@@ -81,74 +81,7 @@ const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
         canvasRef.current.renderAll();
     };
 
-const handleGroup = () => {
-  const canvas = canvasRef.current;
-  if (!canvas) return;
 
-  const activeObjects = canvas.getActiveObjects();
-  if (activeObjects.length <= 1) return;
-
-  // Calculate combined bounding box
-  const bounds = activeObjects.map(obj => obj.getBoundingRect());
-
-  const minX = Math.min(...bounds.map((b) => b.left));
-  const minY = Math.min(...bounds.map((b) => b.top));
-
-  const group = new fabric.Group([], {
-    left: minX,
-    top: minY,
-    originX: 'left',
-    originY: 'top',
-  });
-
-  const clones: fabric.Object[] = [];
-
-  activeObjects.forEach((obj) => {
-    obj.clone((cloned: fabric.Object) => {
-      // Adjust position relative to group's top-left
-      const rect = obj.getBoundingRect();
-      cloned.left = rect.left - minX;
-      cloned.top = rect.top - minY;
-      group.addWithUpdate(cloned);
-      clones.push(cloned);
-    });
-    canvas.remove(obj);
-  });
-
-  canvas.add(group);
-  canvas.setActiveObject(group);
-  canvas.requestRenderAll();
-};
-
-
-
-
-const handleUngroup = () => {
-    const canvas = canvasRef.current;
-    const activeObject = canvas?.getActiveObject();
-
-    if (!canvas || !activeObject || !(activeObject instanceof fabric.Group)) return;
-
-    const items = activeObject._objects;
-    const groupLeft = activeObject.left ?? 0;
-    const groupTop = activeObject.top ?? 0;
-
-    // Remove group and add each object back with correct positioning
-    canvas.remove(activeObject);
-    items.forEach((obj) => {
-        obj.clone((cloned: fabric.Object) => {
-            cloned.set({
-                left: (cloned.left ?? 0) + groupLeft,
-                top: (cloned.top ?? 0) + groupTop,
-                canvas,
-            });
-            canvas.add(cloned);
-        });
-    });
-
-    canvas.discardActiveObject();
-    canvas.requestRenderAll();
-};
 
 
     const originOptions = ['left', 'center', 'right', '0.3', '0.5', '0.7', '1'];
@@ -293,12 +226,6 @@ const handleUngroup = () => {
                 <button onClick={sendToBack}>Send to back</button>
                 <button onClick={bringForwards}>Bring forwards</button>
                 <button onClick={bringToFront}>Bring to front</button>
-            </div>
-
-            {/* Group/Ungroup Controls */}
-            <div className="btn-wrapper" style={{ marginTop: '10px' }}>
-                <button onClick={handleGroup}>Group</button>
-                <button onClick={handleUngroup}>Ungroup</button>
             </div>
         </div>
     );

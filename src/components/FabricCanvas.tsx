@@ -209,7 +209,7 @@ export const FabricCanvas = () => {
           </TabList>
 
           <TabPanel>
-            <ShapePanel run={run} />
+            <ShapePanel run={run} canvasRef={fabricCanvas} />
           </TabPanel>
           <TabPanel>
             <PropertiesPanel selectedObject={selectedObject} canvasRef={fabricCanvas} />
