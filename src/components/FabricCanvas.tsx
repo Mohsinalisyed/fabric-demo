@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
-
+import {
+  copyItem,
+  pasteItem,
+  duplicateItem,
+  deleteItem,
+} from '../utils';
 import ShapePanel from './ShapePanel';
 import PropertiesPanel from './PropertiesPanel';
 import { ControlPanel } from './ControlPanel';
@@ -35,51 +39,13 @@ export const FabricCanvas = () => {
     if (target) showContextMenu(e.clientX, e.clientY, target);
   };
 
-  const copyItem = () => {
-    if (targetObject) targetObject.clone((c:any) => (copiedObjectRef.current = c));
-    setMenuVisible(false);
-  };
-
-  const pasteItem = () => {
-    if (fabricCanvas.current && copiedObjectRef.current) {
-      copiedObjectRef.current.clone((cloned:any) => {
-        cloned.set({
-          left: (cloned.left || 0) + 10,
-          top: (cloned.top || 0) + 10,
-          evented: true,
-        });
-        fabricCanvas.current?.add(cloned);
-        fabricCanvas.current?.setActiveObject(cloned);
-        fabricCanvas.current?.requestRenderAll();
-      });
-      setMenuVisible(false);
-    }
-  };
-
-  const duplicateItem = () => {
-    if (targetObject) {
-      targetObject.clone((cloned:any) => {
-        cloned.set({
-          left: (cloned.left || 0) + 20,
-          top: (cloned.top || 0) + 20,
-          evented: true,
-        });
-        fabricCanvas.current?.add(cloned);
-        fabricCanvas.current?.setActiveObject(cloned);
-        fabricCanvas.current?.requestRenderAll();
-      });
-      setMenuVisible(false);
-    }
-  };
-
-  const deleteItem = () => {
-    if (fabricCanvas.current && targetObject) {
-      fabricCanvas.current.remove(targetObject);
-      fabricCanvas.current.renderAll();
-      setMenuVisible(false);
-      setTargetObject(null);
-    }
-  };
+const handleCopy = () => copyItem(targetObject, copiedObjectRef, setMenuVisible);
+const handlePaste = () =>
+  pasteItem(fabricCanvas.current, copiedObjectRef, setMenuVisible);
+const handleDuplicate = () =>
+  duplicateItem(fabricCanvas.current, targetObject, setMenuVisible);
+const handleDelete = () =>
+  deleteItem(fabricCanvas.current, targetObject, setTargetObject, setMenuVisible);
 
   const run = (action: (canvas: fabric.Canvas) => void) => {
     if (fabricCanvas.current) action(fabricCanvas.current);
@@ -114,10 +80,10 @@ export const FabricCanvas = () => {
           <ContextMenu
             visible={menuVisible}
             position={menuPosition}
-            onCopy={copyItem}
-            onPaste={pasteItem}
-            onDuplicate={duplicateItem}
-            onDelete={deleteItem}
+            onCopy={handleCopy}
+            onPaste={handlePaste}
+            onDuplicate={handleDuplicate}
+            onDelete={handleDelete}
           />
         </div>
         <Tabs>
