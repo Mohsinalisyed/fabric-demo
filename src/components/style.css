@@ -82,14 +82,50 @@
      gap: 12px;
 }
 .layer-info-panel {
-  padding: 10px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
+  font-family: sans-serif;
+}
+
+.layer-info-panel h3 {
+  margin-bottom: 10px;
 }
 
 .layer-info-panel ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  height: 400px;
+  overflow-y: auto;
 }
 
-.layer-info-panel li {
+.layer-item {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: grab;
+  border: 1px solid #ccc;
   margin-bottom: 6px;
+  transition: background-color 0.2s ease;
+  gap:10px
 }
+
+.layer-item.active {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+}
+
+.layer-item canvas-preview {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.layer-item:hover {
+  background-color: #f0f0f0;
+}
+
