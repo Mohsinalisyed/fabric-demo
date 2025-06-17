@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, } from 'react';
 import { fabric } from 'fabric';
 import './style.css';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
@@ -11,14 +11,50 @@ import { isColliding } from '../utils';
 import JsonToFabricCanvas from './JsonToFabricCanvas';
 
 export const FabricCanvas = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvas = useRef<fabric.Canvas | null>(null);
   const copiedObjectRef = useRef<fabric.Object | null>(null);
   const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
   const [collisionDetectionActive, setCollisionDetectionActive] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [targetObject, setTargetObject] = useState<fabric.Object | null>(null);
 
+  const showContextMenu = (x: number, y: number, target: fabric.Object) => {
+    setTargetObject(target);
+    setMenuPosition({ x, y });
+    setMenuVisible(true);
+  };
+
+  const handleContextMenu = useCallback(
+    (event: MouseEvent | ReactMouseEvent) => {
+      event.preventDefault();
+      if (!fabricCanvas.current) return;
+
+      const target = fabricCanvas.current.getActiveObject();
+      if (!target) {
+        console.log('❌ No object selected');
+        return;
+      }
+
+      showContextMenu(event.clientX, event.clientY, target);
+    },
+    []
+  );
+
+  const deleteItem = () => {
+    if (fabricCanvas.current && targetObject) {
+      fabricCanvas.current.remove(targetObject);
+      fabricCanvas.current.renderAll();
+      setMenuVisible(false);
+      setTargetObject(null);
+    }
+  };
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !containerRef.current) return;
+
+    const containerEl = containerRef.current;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
@@ -133,26 +169,26 @@ export const FabricCanvas = () => {
     };
 
     const onMouseMove = () => {
-  if (!dragStarted) return;
+      if (!dragStarted) return;
 
-  const object = canvas.getActiveObject();
-  if (!object) return;
+      const object = canvas.getActiveObject();
+      if (!object) return;
 
-  if (isColliding(object, canvas)) {
-    object.set({
-      fill: 'gray',
-      cornerColor: 'red', 
-    }).setCoords();
-  } else {
-    const originalFill = object.data?.originalFill || 'yellow';
-    object.set({
-      fill: originalFill,
-      cornerColor: 'blue',
-    }).setCoords();
-  }
+      if (isColliding(object, canvas)) {
+        object.set({
+          fill: 'gray',
+          cornerColor: 'red',
+        }).setCoords();
+      } else {
+        const originalFill = object.data?.originalFill || 'yellow';
+        object.set({
+          fill: originalFill,
+          cornerColor: 'blue',
+        }).setCoords();
+      }
 
-  canvas.renderAll();
-};
+      canvas.renderAll();
+    };
 
 
     const onMouseUp = () => {
@@ -168,8 +204,10 @@ export const FabricCanvas = () => {
       canvas.on('mouse:move', onMouseMove);
       canvas.on('mouse:up', onMouseUp);
     }
-
+    containerEl.addEventListener('contextmenu', handleContextMenu);
     return () => {
+      containerEl.removeEventListener('contextmenu', handleContextMenu);
+
       window.removeEventListener('keydown', handleKeyDown);
       canvas.off('selection:created', handleSelection);
       canvas.off('selection:updated', handleSelection);
@@ -183,8 +221,20 @@ export const FabricCanvas = () => {
 
       canvas.dispose();
     };
-  }, [collisionDetectionActive]);
-
+  }, [collisionDetectionActive, handleContextMenu]);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const menu = document.getElementById('customContextMenu');
+      if (menu && !menu.contains(event.target as Node)) {
+        setMenuVisible(false);
+        setTargetObject(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const run = (action: (canvas: fabric.Canvas) => void) => {
     if (fabricCanvas.current) {
       action(fabricCanvas.current);
@@ -196,7 +246,24 @@ export const FabricCanvas = () => {
       <h1>Fabric Demo</h1>
       <div className="canvas-container">
         <div>
-          <canvas ref={canvasRef} id="canvas" className="canvas" />
+          <div ref={containerRef}>
+            <canvas ref={canvasRef} onContextMenu={handleContextMenu} id="canvas" className="canvas" />
+          </div>
+
+          {menuVisible && (
+            <ul
+              id="customContextMenu"
+              className='context-menu'
+              style={{
+                top: menuPosition.y,
+                left: menuPosition.x,
+            
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <li onClick={deleteItem}>Delete</li>
+            </ul>
+          )}
         </div>
         <Tabs>
           <TabList>
