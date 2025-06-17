@@ -8,7 +8,9 @@ interface CanvasElementProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   handleContextMenu: (e: MouseEvent) => void;
   setSelectedObject: (obj: fabric.Object | null) => void;
+  setSelectedLayer: (layer: number | null) => void;
   collisionDetectionActive: boolean;
+  setCanvasObjects: (objs: fabric.Object[]) => void;
 }
 
 export const CanvasElement = ({
@@ -17,10 +19,13 @@ export const CanvasElement = ({
   containerRef,
   handleContextMenu,
   setSelectedObject,
+  setSelectedLayer,
   collisionDetectionActive,
+  setCanvasObjects,
 }: CanvasElementProps) => {
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
+
     const canvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'white',
       width: 800,
@@ -48,6 +53,7 @@ export const CanvasElement = ({
         const canvas = transform.target.canvas;
         canvas?.remove(transform.target);
         canvas?.requestRenderAll();
+        setCanvasObjects(canvas?.getObjects() || []);
         return true;
       },
       render: (ctx, left, top) => {
@@ -66,53 +72,73 @@ export const CanvasElement = ({
       },
     });
 
+    const updateSelection = (e: fabric.IEvent) => {
+      const obj = e.selected?.[0] || null;
+      setSelectedObject(obj);
+      if (obj) {
+        const index = canvas.getObjects().indexOf(obj);
+        setSelectedLayer(index);
+      } else {
+        setSelectedLayer(null);
+      }
+    };
+
+    const handleMove = (e: fabric.IEvent) => {
+      const obj = e.target;
+      if (obj) {
+        const index = canvas.getObjects().indexOf(obj);
+        setSelectedLayer(index);
+      }
+    };
+
+    const updateObjectsList = () => setCanvasObjects(canvas.getObjects());
+
+    canvas.on('selection:created', updateSelection);
+    canvas.on('selection:updated', updateSelection);
+    canvas.on('selection:cleared', () => {
+      setSelectedObject(null);
+      setSelectedLayer(null);
+    });
+
+    canvas.on('object:moving', handleMove);
+    canvas.on('object:added', updateObjectsList);
+    canvas.on('object:removed', updateObjectsList);
+    canvas.on('object:modified', updateObjectsList);
+
+    if (collisionDetectionActive) {
+      let dragStarted = false;
+      canvas.on('mouse:down', () => (dragStarted = true));
+      canvas.on('mouse:up', () => (dragStarted = false));
+      canvas.on('mouse:move', () => {
+        if (!dragStarted) return;
+        const obj = canvas.getActiveObject();
+        if (!obj) return;
+
+        if (isColliding(obj, canvas)) {
+          obj.set({ fill: 'gray', cornerColor: 'red' });
+        } else {
+          const original = obj.data?.originalFill || 'yellow';
+          obj.set({ fill: original, cornerColor: 'blue' });
+        }
+        obj.setCoords();
+        canvas.renderAll();
+      });
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const active = canvas.getActiveObject();
       if (!active) return;
       if (e.key === 'Delete') {
         canvas.remove(active);
         canvas.requestRenderAll();
+        setCanvasObjects(canvas.getObjects());
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-
-    const handleSelection = (e: fabric.IEvent) => {
-      setSelectedObject(e.selected?.[0] || null);
-    };
-
-    const clearSelection = () => setSelectedObject(null);
-
-    let dragStarted = false;
-    const onMouseDown = () => (dragStarted = true);
-    const onMouseUp = () => (dragStarted = false);
-
-    const onMouseMove = () => {
-      if (!dragStarted) return;
-      const obj = canvas.getActiveObject();
-      if (!obj) return;
-
-      if (isColliding(obj, canvas)) {
-        obj.set({ fill: 'gray', cornerColor: 'red' });
-      } else {
-        const original = obj.data?.originalFill || 'yellow';
-        obj.set({ fill: original, cornerColor: 'blue' });
-      }
-      obj.setCoords();
-      canvas.renderAll();
-    };
-
-    canvas.on('selection:created', handleSelection);
-    canvas.on('selection:updated', handleSelection);
-    canvas.on('selection:cleared', clearSelection);
-
-    if (collisionDetectionActive) {
-      canvas.on('mouse:down', onMouseDown);
-      canvas.on('mouse:move', onMouseMove);
-      canvas.on('mouse:up', onMouseUp);
-    }
-
     containerRef.current.addEventListener('contextmenu', handleContextMenu);
+
+    setCanvasObjects(canvas.getObjects());
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);

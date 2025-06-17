@@ -73,3 +73,23 @@
   background-color: black;
   color:'white'
 }
+.tab-wrapper {
+     display: flex;
+     justify-content: space-between;
+     flex-wrap: wrap;
+     padding: 0;
+     list-style: none;
+     gap: 12px;
+}
+.layer-info-panel {
+  padding: 10px;
+}
+
+.layer-info-panel ul {
+  list-style: none;
+  padding: 0;
+}
+
+.layer-info-panel li {
+  margin-bottom: 6px;
+}
