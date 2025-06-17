@@ -1,47 +1,76 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, } from 'react';
-import { fabric } from 'fabric';
-import './style.css';
-import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useRef, useState } from 'react';
+import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
+
 import ShapePanel from './ShapePanel';
 import PropertiesPanel from './PropertiesPanel';
 import { ControlPanel } from './ControlPanel';
 import DrawingCanvas from './DrawingCanvas';
 import SvgToFabricLoader from './SvgToFabricCanvas';
-import { isColliding } from '../utils';
 import JsonToFabricCanvas from './JsonToFabricCanvas';
+import { useContextMenu, useFabricCanvas } from '../hooks';
+import { CanvasElement } from './CanvasElement';
+import { ContextMenu } from './ContextMenu';
+import './style.css'
 
 export const FabricCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricCanvas = useRef<fabric.Canvas | null>(null);
   const copiedObjectRef = useRef<fabric.Object | null>(null);
   const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
   const [collisionDetectionActive, setCollisionDetectionActive] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [targetObject, setTargetObject] = useState<fabric.Object | null>(null);
 
-  const showContextMenu = (x: number, y: number, target: fabric.Object) => {
-    setTargetObject(target);
-    setMenuPosition({ x, y });
-    setMenuVisible(true);
+  const { canvasRef, fabricCanvas } = useFabricCanvas();
+  const {
+    menuVisible,
+    menuPosition,
+    targetObject,
+    setTargetObject,
+    setMenuVisible,
+    showContextMenu,
+  } = useContextMenu();
+
+  const handleContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    const target = fabricCanvas.current?.getActiveObject();
+    if (target) showContextMenu(e.clientX, e.clientY, target);
   };
 
-  const handleContextMenu = useCallback(
-    (event: MouseEvent | ReactMouseEvent) => {
-      event.preventDefault();
-      if (!fabricCanvas.current) return;
+  const copyItem = () => {
+    if (targetObject) targetObject.clone((c:any) => (copiedObjectRef.current = c));
+    setMenuVisible(false);
+  };
 
-      const target = fabricCanvas.current.getActiveObject();
-      if (!target) {
-        console.log('❌ No object selected');
-        return;
-      }
+  const pasteItem = () => {
+    if (fabricCanvas.current && copiedObjectRef.current) {
+      copiedObjectRef.current.clone((cloned:any) => {
+        cloned.set({
+          left: (cloned.left || 0) + 10,
+          top: (cloned.top || 0) + 10,
+          evented: true,
+        });
+        fabricCanvas.current?.add(cloned);
+        fabricCanvas.current?.setActiveObject(cloned);
+        fabricCanvas.current?.requestRenderAll();
+      });
+      setMenuVisible(false);
+    }
+  };
 
-      showContextMenu(event.clientX, event.clientY, target);
-    },
-    []
-  );
+  const duplicateItem = () => {
+    if (targetObject) {
+      targetObject.clone((cloned:any) => {
+        cloned.set({
+          left: (cloned.left || 0) + 20,
+          top: (cloned.top || 0) + 20,
+          evented: true,
+        });
+        fabricCanvas.current?.add(cloned);
+        fabricCanvas.current?.setActiveObject(cloned);
+        fabricCanvas.current?.requestRenderAll();
+      });
+      setMenuVisible(false);
+    }
+  };
 
   const deleteItem = () => {
     if (fabricCanvas.current && targetObject) {
@@ -51,277 +80,45 @@ export const FabricCanvas = () => {
       setTargetObject(null);
     }
   };
-  const copyItem = () => {
-    if (fabricCanvas.current && targetObject) {
-      targetObject.clone((cloned: fabric.Object) => {
-        copiedObjectRef.current = cloned;
-      });
-      setMenuVisible(false);
-    }
-  };
 
-  const pasteItem = () => {
-    if (fabricCanvas.current && copiedObjectRef.current) {
-      copiedObjectRef.current.clone((clonedObj: fabric.Object) => {
-        clonedObj.set({
-          left: (clonedObj.left || 0) + 10,
-          top: (clonedObj.top || 0) + 10,
-          evented: true,
-        });
-
-        if (clonedObj instanceof fabric.Group) {
-          clonedObj.forEachObject(obj => fabricCanvas.current?.add(obj));
-          fabricCanvas.current?.discardActiveObject();
-        } else {
-          fabricCanvas.current?.add(clonedObj);
-          fabricCanvas.current?.setActiveObject(clonedObj);
-        }
-
-        fabricCanvas.current?.requestRenderAll();
-      });
-      setMenuVisible(false);
-    }
-  };
-
-  const duplicateItem = () => {
-    if (fabricCanvas.current && targetObject) {
-      targetObject.clone((clonedObj: fabric.Object) => {
-        clonedObj.set({
-          left: (clonedObj.left || 0) + 20,
-          top: (clonedObj.top || 0) + 20,
-          evented: true,
-        });
-
-        if (clonedObj instanceof fabric.Group) {
-          clonedObj.forEachObject(obj => fabricCanvas.current?.add(obj));
-          fabricCanvas.current?.discardActiveObject();
-        } else {
-          fabricCanvas.current?.add(clonedObj);
-          fabricCanvas.current?.setActiveObject(clonedObj);
-        }
-
-        fabricCanvas.current?.requestRenderAll();
-      });
-      setMenuVisible(false);
-    }
+  const run = (action: (canvas: fabric.Canvas) => void) => {
+    if (fabricCanvas.current) action(fabricCanvas.current);
   };
 
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) return;
-
-    const containerEl = containerRef.current;
-
-    const canvas = new fabric.Canvas(canvasRef.current, {
-      backgroundColor: 'white',
-      width: 800,
-      height: 600,
-      selection: true,
-      preserveObjectStacking: true,
-    });
-
-    fabricCanvas.current = canvas;
-
-    // Set default styles for object controls
-    fabric.Object.prototype.set({
-      cornerStyle: 'circle',
-      cornerColor: 'blue',
-      transparentCorners: false,
-      cornerStrokeColor: '',
-    });
-
-    // Add custom delete control
-    fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-      x: 0.5,
-      y: -0.5,
-      offsetY: -16,
-      offsetX: 16,
-      cursorStyle: 'pointer',
-      mouseUpHandler: function (_eventData, transform) {
-        const target = transform.target;
-        const canvas = target.canvas;
-        canvas?.remove(target);
-        canvas?.requestRenderAll();
-        return true;
-      },
-      render: function (ctx, left, top) {
-        const size = 24;
-        ctx.save();
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(left, top, size / 2, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.fillStyle = 'white';
-        ctx.font = `${size - 6}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('×', left, top + 1);
-        ctx.restore();
-      },
-    });
-
-    // Handle keyboard shortcuts
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const canvas = fabricCanvas.current;
-      if (!canvas) return;
-
-      const activeObject = canvas.getActiveObject();
-
-      // Delete
-      if (e.key === 'Delete' && activeObject) {
-        canvas.remove(activeObject);
-        canvas.requestRenderAll();
-      }
-
-      // Copy
-      if (e.ctrlKey && e.key === 'c' && activeObject) {
-        activeObject.clone((cloned: fabric.Object) => {
-          copiedObjectRef.current = cloned;
-        });
-      }
-
-      // Paste
-      if (e.ctrlKey && e.key === 'v' && copiedObjectRef.current) {
-        copiedObjectRef.current.clone((clonedObj: fabric.Object) => {
-          clonedObj.set({
-            left: (clonedObj.left || 0) + 10,
-            top: (clonedObj.top || 0) + 10,
-            evented: true,
-          });
-
-          if (clonedObj instanceof fabric.Group) {
-            clonedObj.forEachObject(obj => canvas.add(obj));
-            canvas.discardActiveObject();
-          } else {
-            canvas.add(clonedObj);
-            canvas.setActiveObject(clonedObj);
-          }
-
-          canvas.requestRenderAll();
-        });
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    let dragStarted = false;
-
-    const handleSelection = (e: fabric.IEvent) => {
-      setSelectedObject(e.selected?.[0] || null);
-    };
-
-    const clearSelection = () => setSelectedObject(null);
-
-    const onMouseDown = () => {
-      const object = canvas.getActiveObject();
-      dragStarted = true;
-
-      if (object && !object.data?.originalFill) {
-        object.set('data', {
-          ...object.data,
-          originalFill: object.fill,
-        });
-      }
-    };
-
-    const onMouseMove = () => {
-      if (!dragStarted) return;
-
-      const object = canvas.getActiveObject();
-      if (!object) return;
-
-      if (isColliding(object, canvas)) {
-        object.set({
-          fill: 'gray',
-          cornerColor: 'red',
-        }).setCoords();
-      } else {
-        const originalFill = object.data?.originalFill || 'yellow';
-        object.set({
-          fill: originalFill,
-          cornerColor: 'blue',
-        }).setCoords();
-      }
-
-      canvas.renderAll();
-    };
-
-
-    const onMouseUp = () => {
-      dragStarted = false;
-    };
-
-    canvas.on('selection:created', handleSelection);
-    canvas.on('selection:updated', handleSelection);
-    canvas.on('selection:cleared', clearSelection);
-
-    if (collisionDetectionActive) {
-      canvas.on('mouse:down', onMouseDown);
-      canvas.on('mouse:move', onMouseMove);
-      canvas.on('mouse:up', onMouseUp);
-    }
-    containerEl.addEventListener('contextmenu', handleContextMenu);
-    return () => {
-      containerEl.removeEventListener('contextmenu', handleContextMenu);
-
-      window.removeEventListener('keydown', handleKeyDown);
-      canvas.off('selection:created', handleSelection);
-      canvas.off('selection:updated', handleSelection);
-      canvas.off('selection:cleared', clearSelection);
-
-      if (collisionDetectionActive) {
-        canvas.off('mouse:down', onMouseDown);
-        canvas.off('mouse:move', onMouseMove);
-        canvas.off('mouse:up', onMouseUp);
-      }
-
-      canvas.dispose();
-    };
-  }, [collisionDetectionActive, handleContextMenu]);
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       const menu = document.getElementById('customContextMenu');
-      if (menu && !menu.contains(event.target as Node)) {
+      if (menu && !menu.contains(e.target as Node)) {
         setMenuVisible(false);
         setTargetObject(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const run = (action: (canvas: fabric.Canvas) => void) => {
-    if (fabricCanvas.current) {
-      action(fabricCanvas.current);
-    }
-  };
 
   return (
     <>
       <h1>Fabric Demo</h1>
       <div className="canvas-container">
-        <div>
-          <div ref={containerRef}>
-            <canvas ref={canvasRef} onContextMenu={handleContextMenu} id="canvas" className="canvas" />
-          </div>
-
-          {menuVisible && (
-            <ul
-              id="customContextMenu"
-              className='context-menu'
-              style={{
-                top: menuPosition.y,
-                left: menuPosition.x,
-
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <li onClick={copyItem} className='menu-item'>Copy</li>
-              <li onClick={pasteItem} className='menu-item'>Paste</li>
-              <li onClick={duplicateItem} className='menu-item'>Duplicate</li>
-              <li onClick={deleteItem} className='menu-item'>Delete</li>
-            </ul>
-          )}
+        <div ref={containerRef}>
+          <CanvasElement
+            canvasRef={canvasRef}
+            fabricCanvas={fabricCanvas}
+            containerRef={containerRef}
+            handleContextMenu={handleContextMenu}
+            setSelectedObject={setSelectedObject}
+            collisionDetectionActive={collisionDetectionActive}
+          />
+          <ContextMenu
+            visible={menuVisible}
+            position={menuPosition}
+            onCopy={copyItem}
+            onPaste={pasteItem}
+            onDuplicate={duplicateItem}
+            onDelete={deleteItem}
+          />
         </div>
         <Tabs>
           <TabList>
@@ -332,7 +129,6 @@ export const FabricCanvas = () => {
             <Tab className="tab-title">Load Svg</Tab>
             <Tab className="tab-title">Load Json</Tab>
           </TabList>
-
           <TabPanel>
             <ShapePanel run={run} canvasRef={fabricCanvas} />
           </TabPanel>
