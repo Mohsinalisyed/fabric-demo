@@ -51,6 +51,61 @@ export const FabricCanvas = () => {
       setTargetObject(null);
     }
   };
+  const copyItem = () => {
+    if (fabricCanvas.current && targetObject) {
+      targetObject.clone((cloned: fabric.Object) => {
+        copiedObjectRef.current = cloned;
+      });
+      setMenuVisible(false);
+    }
+  };
+
+  const pasteItem = () => {
+    if (fabricCanvas.current && copiedObjectRef.current) {
+      copiedObjectRef.current.clone((clonedObj: fabric.Object) => {
+        clonedObj.set({
+          left: (clonedObj.left || 0) + 10,
+          top: (clonedObj.top || 0) + 10,
+          evented: true,
+        });
+
+        if (clonedObj instanceof fabric.Group) {
+          clonedObj.forEachObject(obj => fabricCanvas.current?.add(obj));
+          fabricCanvas.current?.discardActiveObject();
+        } else {
+          fabricCanvas.current?.add(clonedObj);
+          fabricCanvas.current?.setActiveObject(clonedObj);
+        }
+
+        fabricCanvas.current?.requestRenderAll();
+      });
+      setMenuVisible(false);
+    }
+  };
+
+  const duplicateItem = () => {
+    if (fabricCanvas.current && targetObject) {
+      targetObject.clone((clonedObj: fabric.Object) => {
+        clonedObj.set({
+          left: (clonedObj.left || 0) + 20,
+          top: (clonedObj.top || 0) + 20,
+          evented: true,
+        });
+
+        if (clonedObj instanceof fabric.Group) {
+          clonedObj.forEachObject(obj => fabricCanvas.current?.add(obj));
+          fabricCanvas.current?.discardActiveObject();
+        } else {
+          fabricCanvas.current?.add(clonedObj);
+          fabricCanvas.current?.setActiveObject(clonedObj);
+        }
+
+        fabricCanvas.current?.requestRenderAll();
+      });
+      setMenuVisible(false);
+    }
+  };
+
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
 
@@ -257,11 +312,14 @@ export const FabricCanvas = () => {
               style={{
                 top: menuPosition.y,
                 left: menuPosition.x,
-            
+
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <li onClick={deleteItem}>Delete</li>
+              <li onClick={copyItem} className='menu-item'>Copy</li>
+              <li onClick={pasteItem} className='menu-item'>Paste</li>
+              <li onClick={duplicateItem} className='menu-item'>Duplicate</li>
+              <li onClick={deleteItem} className='menu-item'>Delete</li>
             </ul>
           )}
         </div>
