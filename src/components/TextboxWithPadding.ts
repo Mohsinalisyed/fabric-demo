@@ -47,7 +47,6 @@ export class TextboxWithPadding extends fabric.Textbox {
 
   _render(ctx: CanvasRenderingContext2D) {
       console.log('override _render function');
-    this._renderCustomBackground(ctx);
     super._render(ctx);
   }
 

@@ -17,6 +17,7 @@ import { CanvasElement } from './CanvasElement';
 import { ContextMenu } from './ContextMenu';
 import './style.css';
 import CanvasElementLayer from './CanvasElementLayer';
+import VideoCanvas from './CanvasVideo';
 
 export const FabricCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,7 +112,7 @@ export const FabricCanvas = () => {
             showContextMenu={showContextMenu}
             setMenuVisible={setMenuVisible}
             setTargetObject={setTargetObject}
-            
+
           />
           <ContextMenu
             visible={menuVisible}
@@ -120,7 +121,7 @@ export const FabricCanvas = () => {
             onPaste={handlePaste}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
-             targetObject={targetObject}
+            targetObject={targetObject}
           />
 
         </div>
@@ -133,6 +134,7 @@ export const FabricCanvas = () => {
             <Tab className="tab-title">Load Svg</Tab>
             <Tab className="tab-title">Load Json</Tab>
             <Tab className="tab-title">Layers</Tab>
+            <Tab className="tab-title">Add Video</Tab>
           </TabList>
           <TabPanel>
             <ShapePanel run={run} canvasRef={fabricCanvas} />
@@ -162,8 +164,12 @@ export const FabricCanvas = () => {
               objects={canvasObjects}
               onReorder={reorderObjects}
             />
-          </TabPanel>
 
+          </TabPanel>
+          <TabPanel>
+       <VideoCanvas fabricCanvas={fabricCanvas} />
+
+          </TabPanel>
         </Tabs>
       </div>
     </>
