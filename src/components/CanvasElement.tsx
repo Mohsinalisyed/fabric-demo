@@ -11,6 +11,9 @@ interface CanvasElementProps {
   setSelectedLayer: (layer: number | null) => void;
   collisionDetectionActive: boolean;
   setCanvasObjects: (objs: fabric.Object[]) => void;
+  showContextMenu: (x: number, y: number, target: fabric.Object) => void;
+setMenuVisible: (visible: boolean) => void;
+
 }
 
 export const CanvasElement = ({
@@ -22,6 +25,8 @@ export const CanvasElement = ({
   setSelectedLayer,
   collisionDetectionActive,
   setCanvasObjects,
+  showContextMenu,
+  setMenuVisible,
 }: CanvasElementProps) => {
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -34,6 +39,19 @@ export const CanvasElement = ({
       preserveObjectStacking: true,
     });
     fabricCanvas.current = canvas;
+ canvas.on('mouse:down', (opt) => {
+    const evt = opt.e as MouseEvent;
+    const target = canvas.findTarget(evt, false);
+
+    // Show custom context menu ONLY on object click
+    if (target) {
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
+      showContextMenu(evt.clientX, evt.clientY, target);
+    } else {
+      setMenuVisible(false);
+    }
+  });
 
     // default styles
     fabric.Object.prototype.set({

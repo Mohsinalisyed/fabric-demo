@@ -4,9 +4,12 @@
 }
 .canvas-container {
     width: 100%;
+    max-width: 1400px;
+    margin: auto;
     display: flex;
     justify-content: space-between;
-    gap:16px
+    gap:16px;
+    padding-left: 8px;
 }
 .btn-wrapper {
     display: flex;
@@ -75,7 +78,6 @@
 }
 .tab-wrapper {
      display: flex;
-     justify-content: space-between;
      flex-wrap: wrap;
      padding: 0;
      list-style: none;

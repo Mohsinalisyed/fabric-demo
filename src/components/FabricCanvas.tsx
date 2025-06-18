@@ -108,6 +108,8 @@ export const FabricCanvas = () => {
             setSelectedLayer={setSelectedLayer}
             collisionDetectionActive={collisionDetectionActive}
             setCanvasObjects={setCanvasObjects}
+            showContextMenu={showContextMenu}
+            setMenuVisible={setMenuVisible}
           />
           <ContextMenu
             visible={menuVisible}
