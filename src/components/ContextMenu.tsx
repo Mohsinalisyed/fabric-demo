@@ -1,3 +1,5 @@
+import { fabric } from 'fabric';
+
 interface ContextMenuProps {
   visible: boolean;
   position: { x: number; y: number };
@@ -5,20 +7,34 @@ interface ContextMenuProps {
   onPaste: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  targetObject: fabric.Object | null;
 }
 
-export const ContextMenu = ({ visible, position, onCopy, onPaste, onDuplicate, onDelete }: ContextMenuProps) => {
+export const ContextMenu = ({
+  visible,
+  position,
+  onCopy,
+  onPaste,
+  onDuplicate,
+  onDelete,
+  targetObject,
+}: ContextMenuProps) => {
   if (!visible) return null;
+
   return (
     <ul
       id="customContextMenu"
       className="context-menu"
       style={{ top: position.y, left: position.x }}
     >
-      <li onClick={onCopy} className="menu-item">Copy</li>
+      {targetObject && (
+        <>
+          <li onClick={onCopy} className="menu-item">Copy</li>
+          <li onClick={onDuplicate} className="menu-item">Duplicate</li>
+          <li onClick={onDelete} className="menu-item">Delete</li>
+        </>
+      )}
       <li onClick={onPaste} className="menu-item">Paste</li>
-      <li onClick={onDuplicate} className="menu-item">Duplicate</li>
-      <li onClick={onDelete} className="menu-item">Delete</li>
     </ul>
   );
 };

@@ -110,6 +110,8 @@ export const FabricCanvas = () => {
             setCanvasObjects={setCanvasObjects}
             showContextMenu={showContextMenu}
             setMenuVisible={setMenuVisible}
+            setTargetObject={setTargetObject}
+            
           />
           <ContextMenu
             visible={menuVisible}
@@ -118,6 +120,7 @@ export const FabricCanvas = () => {
             onPaste={handlePaste}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
+             targetObject={targetObject}
           />
 
         </div>
