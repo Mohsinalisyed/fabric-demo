@@ -13,7 +13,7 @@ interface CanvasElementProps {
   setCanvasObjects: (objs: fabric.Object[]) => void;
   showContextMenu: (x: number, y: number, target: fabric.Object | null) => void;
   setMenuVisible: (visible: boolean) => void;
-  setTargetObject: (obj: fabric.Object | null) => void; // ✅ new
+  setTargetObject: (obj: fabric.Object | null) => void;
 }
 
 export const CanvasElement = ({
