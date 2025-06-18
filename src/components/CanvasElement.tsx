@@ -39,21 +39,21 @@ export const CanvasElement = ({
       preserveObjectStacking: true,
     });
     fabricCanvas.current = canvas;
-canvas.on('mouse:down', (opt) => {
-  const evt = opt.e as MouseEvent;
-  const target = canvas.findTarget(evt, false);
+    canvas.on('mouse:down', (opt) => {
+      const evt = opt.e as MouseEvent;
+      const target = canvas.findTarget(evt, false);
 
-  opt.e.preventDefault();
-  opt.e.stopPropagation();
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
 
-  if (target) {
-    showContextMenu(evt.clientX, evt.clientY, target);
-    setTargetObject(target); // ✅ set object
-  } else {
-    showContextMenu(evt.clientX, evt.clientY, null); // ✅ still show menu (only Paste)
-    setTargetObject(null); // ✅ clear object
-  }
-});
+      if (target) {
+        showContextMenu(evt.clientX, evt.clientY, target);
+        setTargetObject(target);
+      } else {
+        showContextMenu(evt.clientX, evt.clientY, null);
+        setTargetObject(null);
+      }
+    });
 
 
     // default styles
@@ -165,7 +165,7 @@ canvas.on('mouse:down', (opt) => {
       window.removeEventListener('keydown', handleKeyDown);
       canvas.dispose();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasRef, collisionDetectionActive]);
 
   return <canvas ref={canvasRef} id="canvas" className="canvas" />;
