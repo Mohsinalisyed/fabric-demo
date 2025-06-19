@@ -18,6 +18,7 @@ import { ContextMenu } from './ContextMenu';
 import './style.css';
 import CanvasElementLayer from './CanvasElementLayer';
 import VideoCanvas from './CanvasVideo';
+import CanvasWithRightClick from './CanvasWithRightClick';
 
 export const FabricCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +27,6 @@ export const FabricCanvas = () => {
   const [selectedLayer, setSelectedLayer] = useState<number | null>(null);
   const [collisionDetectionActive, setCollisionDetectionActive] = useState(false);
   const [canvasObjects, setCanvasObjects] = useState<fabric.Object[]>([]);
-
   const { canvasRef, fabricCanvas } = useFabricCanvas();
   const {
     menuVisible,
@@ -54,6 +54,7 @@ export const FabricCanvas = () => {
       setSelectedLayer(null);
     }
   };
+
   const reorderObjects = (fromIndex: number, toIndex: number) => {
     if (!fabricCanvas.current) return;
 
@@ -86,7 +87,7 @@ export const FabricCanvas = () => {
     const handleClickOutside = (e: MouseEvent) => {
       const menu = document.getElementById('customContextMenu');
       if (menu && !menu.contains(e.target as Node)) {
-        setMenuVisible(false);
+        setMenuVisible({objectRightClick:false,canvasRightClick:false});
         setTargetObject(null);
       }
     };
@@ -123,6 +124,7 @@ export const FabricCanvas = () => {
             onDelete={handleDelete}
             targetObject={targetObject}
           />
+          <CanvasWithRightClick/>
 
         </div>
         <Tabs>

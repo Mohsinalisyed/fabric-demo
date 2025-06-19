@@ -1,7 +1,10 @@
 import { fabric } from 'fabric';
 
+export interface MenuVisbleType {
+canvasRightClick:boolean, objectRightClick:boolean
+}
 interface ContextMenuProps {
-  visible: boolean;
+  visible: MenuVisbleType;
   position: { x: number; y: number };
   onCopy: () => void;
   onPaste: () => void;
@@ -17,24 +20,24 @@ export const ContextMenu = ({
   onPaste,
   onDuplicate,
   onDelete,
-  targetObject,
 }: ContextMenuProps) => {
-  if (!visible) return null;
-
+if (!visible.canvasRightClick && !visible.objectRightClick) return null;
   return (
     <ul
       id="customContextMenu"
       className="context-menu"
       style={{ top: position.y, left: position.x }}
     >
-      {targetObject && (
+      {visible.objectRightClick ? (
         <>
           <li onClick={onCopy} className="menu-item">Copy</li>
           <li onClick={onDuplicate} className="menu-item">Duplicate</li>
           <li onClick={onDelete} className="menu-item">Delete</li>
         </>
-      )}
-      <li onClick={onPaste} className="menu-item">Paste</li>
+      ) :
+      visible.canvasRightClick ? (
+        <li onClick={onPaste} className="menu-item">Paste</li>
+      ) : null}
     </ul>
   );
 };

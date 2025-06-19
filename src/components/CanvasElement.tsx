@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { fabric } from 'fabric';
 import { isColliding } from '../utils';
+import type { ExtendedCanvas } from '../hooks';
+import type { MenuVisbleType } from './ContextMenu';
 
 interface CanvasElementProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -12,7 +14,7 @@ interface CanvasElementProps {
   collisionDetectionActive: boolean;
   setCanvasObjects: (objs: fabric.Object[]) => void;
   showContextMenu: (x: number, y: number, target: fabric.Object | null) => void;
-  setMenuVisible: (visible: boolean) => void;
+  setMenuVisible: (visible: MenuVisbleType) => void;
   setTargetObject: (obj: fabric.Object | null) => void;
 }
 
@@ -20,13 +22,13 @@ export const CanvasElement = ({
   canvasRef,
   fabricCanvas,
   containerRef,
-  handleContextMenu,
   setSelectedObject,
   setSelectedLayer,
   collisionDetectionActive,
   setCanvasObjects,
-  showContextMenu,
-  setTargetObject
+  setMenuVisible,
+  showContextMenu
+
 }: CanvasElementProps) => {
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -37,23 +39,33 @@ export const CanvasElement = ({
       height: 600,
       selection: true,
       preserveObjectStacking: true,
-    });
+    }) as ExtendedCanvas;
     fabricCanvas.current = canvas;
-    canvas.on('mouse:down', (opt) => {
-      const evt = opt.e as MouseEvent;
-      const target = canvas.findTarget(evt, false);
 
-      opt.e.preventDefault();
-      opt.e.stopPropagation();
+    const handleRightClick = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent browser context menu
+
+      const pointer = canvas.getPointer(e); // canvas-relative pointer
+
+      const target = canvas.findTarget(e, false); // clicked Fabric object
+      showContextMenu(pointer.x, pointer.y, target ?? null)
+      console.log('Pointer (canvas-relative):', pointer); // { x, y }
+      console.log('Mouse (screen coords):', { x: e.clientX, y: e.clientY });
 
       if (target) {
-        showContextMenu(evt.clientX, evt.clientY, target);
-        setTargetObject(target);
+        const { left, top } = target;
+        console.log('Target position:', { left, top });
+
+        setMenuVisible({objectRightClick:true,canvasRightClick:false});
+        console.log('You right-clicked on object:', target.type);
       } else {
-        showContextMenu(evt.clientX, evt.clientY, null);
-        setTargetObject(null);
+        setMenuVisible({objectRightClick:false,canvasRightClick:true});
+        console.log('You right-clicked on canvas');
       }
-    });
+    };
+
+
+
 
 
     // default styles
@@ -157,11 +169,13 @@ export const CanvasElement = ({
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    containerRef.current.addEventListener('contextmenu', handleContextMenu);
+    // ✅ Attach right-click handler to upperCanvasEl
+    canvas.upperCanvasEl.addEventListener('contextmenu', handleRightClick);
 
     setCanvasObjects(canvas.getObjects());
 
     return () => {
+      canvas.upperCanvasEl.removeEventListener('contextmenu', handleRightClick);
       window.removeEventListener('keydown', handleKeyDown);
       canvas.dispose();
     };
