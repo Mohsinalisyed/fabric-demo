@@ -18,7 +18,6 @@ import { ContextMenu } from './ContextMenu';
 import './style.css';
 import CanvasElementLayer from './CanvasElementLayer';
 import VideoCanvas from './CanvasVideo';
-import CanvasWithRightClick from './CanvasWithRightClick';
 
 export const FabricCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,7 +123,6 @@ export const FabricCanvas = () => {
             onDelete={handleDelete}
             targetObject={targetObject}
           />
-          <CanvasWithRightClick/>
 
         </div>
         <Tabs>

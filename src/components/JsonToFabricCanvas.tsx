@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { fabric } from 'fabric';
+import type { JsonToFabricCanvasProps } from './types';
 
-interface JsonToFabricCanvasProps {
-  canvas: fabric.Canvas | null;
-}
+
 
 const JsonToFabricCanvas = ({ canvas }: JsonToFabricCanvasProps) => {
   const [jsonInput, setJsonInput] = useState('');

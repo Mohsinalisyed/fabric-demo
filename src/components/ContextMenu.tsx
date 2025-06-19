@@ -1,17 +1,4 @@
-import { fabric } from 'fabric';
-
-export interface MenuVisbleType {
-canvasRightClick:boolean, objectRightClick:boolean
-}
-interface ContextMenuProps {
-  visible: MenuVisbleType;
-  position: { x: number; y: number };
-  onCopy: () => void;
-  onPaste: () => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-  targetObject: fabric.Object | null;
-}
+import type { ContextMenuProps } from "./types";
 
 export const ContextMenu = ({
   visible,

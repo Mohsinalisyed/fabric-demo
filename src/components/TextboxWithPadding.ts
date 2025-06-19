@@ -1,29 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fabric } from 'fabric';
+import { CUSTOM_PROPERTIES } from '../utils';
+import type { ExtendedTextboxOptions, TextboxWithPaddingObject } from './types';
 
-// Define the list of custom properties
-const CUSTOM_PROPERTIES = [
-  'borderRadius',
-  'paddingX',
-  'paddingY',
-  'customBackgroundColor',
-] as const;
-
-type CustomPropertyKey = (typeof CUSTOM_PROPERTIES)[number];
 
 // Extend Fabric's textbox options with custom properties
-type ExtendedTextboxOptions = fabric.ITextboxOptions & {
-  borderRadius?: number;
-  paddingX?: number;
-  paddingY?: number;
-  customBackgroundColor?: string;
-};
 
-// Object type used during deserialization
-type TextboxWithPaddingObject = fabric.IObjectOptions &
-  Partial<Record<CustomPropertyKey, any>> & {
-    text: string;
-  };
 
 export class TextboxWithPadding extends fabric.Textbox {
   borderRadius: number;

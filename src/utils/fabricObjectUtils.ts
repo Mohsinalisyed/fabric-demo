@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fabric } from 'fabric';
-import type { MenuVisbleType } from '../components/ContextMenu';
+import type { MenuVisbleType } from '../components';
 
 export const copyItem = (
   targetObject: fabric.Object | null,

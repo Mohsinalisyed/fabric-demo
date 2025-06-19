@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fabric } from 'fabric';
 import { FabricVideoPlayer } from '../utils';
+import type { CanvasVideoProps } from './types';
 
-interface CanvasVideoProps {
-  fabricCanvas: React.MutableRefObject<fabric.Canvas | null>;
-}
 
 const CanvasVideo: React.FC<CanvasVideoProps> = ({ fabricCanvas }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);

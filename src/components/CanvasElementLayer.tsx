@@ -1,11 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { fabric } from 'fabric';
-
-interface CanvasElementLayerProps {
-    selectedLayer: number | null;
-    objects: fabric.Object[];
-    onReorder: (fromIndex: number, toIndex: number) => void;
-}
+import type { CanvasElementLayerProps } from './types';
 
 const CanvasElementLayer: React.FC<CanvasElementLayerProps> = ({
     selectedLayer,

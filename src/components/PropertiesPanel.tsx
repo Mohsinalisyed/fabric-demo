@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import { fabric } from 'fabric';
+import type { PropertiesProps } from './types';
 
-type Props = {
-    selectedObject: fabric.Object | null;
-    canvasRef: React.MutableRefObject<fabric.Canvas | null>;
-};
 
-const PropertiesPanel = ({ selectedObject, canvasRef }: Props) => {
+const PropertiesPanel = ({ selectedObject, canvasRef }: PropertiesProps) => {
     const [fill, setFill] = useState('#000000');
     const [stroke, setStroke] = useState('#000000');
     const [opacity, setOpacity] = useState(1);

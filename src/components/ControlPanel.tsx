@@ -1,12 +1,7 @@
 import { clearCanvas, exportCanvasImage, exportCanvasJSON, exportCanvasSVG } from "../utils";
+import type { ControlProps } from "./types";
 
-type Props = {
-    run: (action: (canvas: fabric.Canvas) => void) => void;
-    collisionDetectionActive: boolean;
-    setCollisionDetectionActive: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export const ControlPanel = ({ run, collisionDetectionActive, setCollisionDetectionActive }: Props) => {
+export const ControlPanel = ({ run, collisionDetectionActive, setCollisionDetectionActive }: ControlProps) => {
 
     const renderButton = (label: string, handler: (canvas: fabric.Canvas) => void) => (
         <button onClick={() => run(handler)}>{label}</button>

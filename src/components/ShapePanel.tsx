@@ -17,13 +17,10 @@ import {
     addCustomArc,
 } from '../utils';
 import { TextboxWithPadding } from './TextboxWithPadding';
+import type { ShapeProps } from './types';
 
-type Props = {
-    run: (action: (canvas: fabric.Canvas) => void) => void;
-    canvasRef: React.MutableRefObject<fabric.Canvas | null>;
-};
 
-const ShapePanel = ({ run, canvasRef }: Props) => {
+const ShapePanel = ({ run, canvasRef }: ShapeProps) => {
     const renderButton = (label: string, handler: (canvas: fabric.Canvas) => void) => (
         <button onClick={() => run(handler)}>{label}</button>
     );

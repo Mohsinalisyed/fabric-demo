@@ -2,21 +2,9 @@ import { useEffect } from 'react';
 import { fabric } from 'fabric';
 import { isColliding } from '../utils';
 import type { ExtendedCanvas } from '../hooks';
-import type { MenuVisbleType } from './ContextMenu';
+import type { CanvasElementProps } from './types';
 
-interface CanvasElementProps {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  fabricCanvas: React.MutableRefObject<fabric.Canvas | null>;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  handleContextMenu: (e: MouseEvent) => void;
-  setSelectedObject: (obj: fabric.Object | null) => void;
-  setSelectedLayer: (layer: number | null) => void;
-  collisionDetectionActive: boolean;
-  setCanvasObjects: (objs: fabric.Object[]) => void;
-  showContextMenu: (x: number, y: number, target: fabric.Object | null) => void;
-  setMenuVisible: (visible: MenuVisbleType) => void;
-  setTargetObject: (obj: fabric.Object | null) => void;
-}
+
 
 export const CanvasElement = ({
   canvasRef,

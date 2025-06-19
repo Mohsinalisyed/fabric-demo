@@ -1,9 +1,6 @@
 import React, {  useState } from 'react';
 import { fabric } from 'fabric';
-
-interface SvgToFabricLoaderProps {
-  fabricCanvasRef: React.MutableRefObject<fabric.Canvas | null>;
-}
+import type { SvgToFabricLoaderProps } from './types';
 
 const SvgToFabricLoader: React.FC<SvgToFabricLoaderProps> = ({ fabricCanvasRef }) => {
   const [svgInput, setSvgInput] = useState('');

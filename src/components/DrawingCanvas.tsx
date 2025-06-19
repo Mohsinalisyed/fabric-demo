@@ -1,9 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { fabric } from 'fabric';
-
-interface DrawingCanvasProps {
-  fabricCanvasRef: React.MutableRefObject<fabric.Canvas | null>;
-}
+import type { DrawingCanvasProps } from './types';
 
 const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ fabricCanvasRef }) => {
   const drawingColorRef = useRef<HTMLInputElement>(null);
