@@ -73,15 +73,6 @@ export class TextboxWithPadding extends fabric.Textbox {
     ctx.restore();
   }
 
-  getBoundingRect(absolute = false, calculate = false) {
-    const rect = super.getBoundingRect(absolute, calculate);
-    rect.width += this.paddingX * 2;
-    rect.height += this.paddingY * 2;
-    rect.left -= this.paddingX;
-    rect.top -= this.paddingY;
-    return rect;
-  }
-
   _getNonTransformedDimensions() {
     const dim = super._getNonTransformedDimensions();
     return {

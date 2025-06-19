@@ -7,3 +7,4 @@ export * from './canvasArcs';
 export * from './fabricObjectUtils'
 export * from './constant'
 export * from './helper'
+export *  from './FabricVideoPlayer'
